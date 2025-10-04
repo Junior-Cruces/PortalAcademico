@@ -1,50 +1,46 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PortalAcademico.Data;
-using PortalAcademico.Models;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Conexión a SQLite
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-
+// Base de datos
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(connectionString));
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection") ??
+                      "Data Source=app.db"));
 
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-
-// Identity con soporte para roles
-builder.Services.AddDefaultIdentity<IdentityUser>(options =>
-    options.SignIn.RequireConfirmedAccount = false)
-    .AddRoles<IdentityRole>()
+// Identity
+builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
+    .AddRoles<IdentityRole>() // ←
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
-// Configurar cookies de Identity (opcional, pero buena práctica)
-builder.Services.ConfigureApplicationCookie(options =>
+// Redis para caché distribuido y sesión
+var redisConn = builder.Configuration.GetConnectionString("Redis") ??
+                builder.Configuration["Redis__ConnectionString"] ??
+                "localhost:6379";
+
+builder.Services.AddStackExchangeRedisCache(options =>
 {
-    options.LoginPath = "/Identity/Account/Login";
-    options.LogoutPath = "/Identity/Account/Logout";
-    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+    options.Configuration = redisConn;
+    options.InstanceName = "PortalAcademico_";
 });
 
-builder.Services.AddControllersWithViews();
-
-// Agregar servicios de sesión
 builder.Services.AddSession(options =>
 {
+    options.Cookie.Name = "PortalAcademico.Session";
     options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
 
+// MVC
+builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
+
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseMigrationsEndPoint();
-}
-else
+if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
@@ -52,20 +48,20 @@ else
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
 app.UseRouting();
-// Habilitar sesiones
-app.UseSession();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Ruta por defecto: ir al catálogo de cursos
+app.UseSession(); // ← Importante: después de UseRouting
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-
 app.MapRazorPages();
 
-// Sembrar datos iniciales (3 cursos + Coordinador)
+// Inicializar datos
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;

@@ -66,6 +66,17 @@
                 </a>
             </div>
         }
+        @if (Context.Session.GetString("UltimoCursoNombre") != null)
+{
+    <div class="bg-light text-center py-2 border-bottom">
+        <a class="text-primary text-decoration-none" 
+           asp-controller="Cursos" 
+           asp-action="Details" 
+           asp-route-id="@Context.Session.GetInt32("UltimoCursoId")">
+            👈 Volver al curso @Context.Session.GetString("UltimoCursoNombre")
+        </a>
+    </div>
+}
     </header>
 
     <div class="container">

@@ -21,16 +21,13 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="Cursos" asp-action="Index">Catálogo</a>
+                            <a class="nav-link text-white" asp-controller="Cursos" asp-action="Index">Catálogo</a>
                         </li>
-                        @if (User.Identity.IsAuthenticated)
+                        @if (User.Identity.IsAuthenticated && User.IsInRole("Coordinador"))
                         {
-                            if (User.IsInRole("Coordinador"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link text-white" asp-area="" asp-controller="Coordinador" asp-action="Index">Panel Coordinador</a>
-                                </li>
-                            }
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-controller="Coordinador" asp-action="Index">Panel Coordinador</a>
+                            </li>
                         }
                     </ul>
                     <partial name="_LoginPartial" />
@@ -38,27 +35,11 @@
             </div>
         </nav>
 
-        <!-- Mensajes de éxito/error -->
-        @if (TempData["Success"] != null)
-        {
-            <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
-                @TempData["Success"]
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        }
-        @if (TempData["Error"] != null)
-        {
-            <div class="alert alert-danger alert-dismissible fade show m-3" role="alert">
-                @TempData["Error"]
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        }
-
-        <!-- Enlace de "Volver al curso" (Pregunta 4 - opcional por ahora) -->
+        <!-- Enlace de "Volver al curso" (Pregunta 4) -->
         @if (Context.Session.GetString("UltimoCursoNombre") != null)
         {
-            <div class="bg-light text-center py-2">
-                <a class="text-primary" 
+            <div class="bg-light text-center py-2 border-bottom">
+                <a class="text-primary text-decoration-none" 
                    asp-controller="Cursos" 
                    asp-action="Details" 
                    asp-route-id="@Context.Session.GetInt32("UltimoCursoId")">
@@ -66,17 +47,26 @@
                 </a>
             </div>
         }
-        @if (Context.Session.GetString("UltimoCursoNombre") != null)
-{
-    <div class="bg-light text-center py-2 border-bottom">
-        <a class="text-primary text-decoration-none" 
-           asp-controller="Cursos" 
-           asp-action="Details" 
-           asp-route-id="@Context.Session.GetInt32("UltimoCursoId")">
-            👈 Volver al curso @Context.Session.GetString("UltimoCursoNombre")
-        </a>
-    </div>
-}
+
+        <!-- Mensajes -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="container mt-3">
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="container mt-3">
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            </div>
+        }
     </header>
 
     <div class="container">

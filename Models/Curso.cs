@@ -25,7 +25,6 @@ namespace PortalAcademico.Models
 
         public bool Activo { get; set; } = true;
 
-        // Validación personalizada (opcional, pero buena práctica)
         public bool EsHorarioValido() => HorarioInicio < HorarioFin;
     }
 }

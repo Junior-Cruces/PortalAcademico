@@ -1,0 +1,26 @@
+@model PortalAcademico.Models.Curso
+
+@{
+    ViewData["Title"] = "Detalle del Curso";
+}
+
+<h2>@Model.Nombre</h2>
+
+<div>
+    <p><strong>Código:</strong> @Model.Codigo</p>
+    <p><strong>Créditos:</strong> @Model.Creditos</p>
+    <p><strong>Cupo máximo:</strong> @Model.CupoMaximo</p>
+    <p><strong>Horario:</strong> @Model.HorarioInicio – @Model.HorarioFin</p>
+</div>
+
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <a asp-controller="Matriculas" asp-action="Inscribir" asp-route-cursoId="@Model.Id"
+       class="btn btn-success">Inscribirse</a>
+}
+else
+{
+    <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-primary">Iniciar sesión para inscribirse</a>
+}
+
+<a asp-action="Index" class="btn btn-secondary">Volver al catálogo</a>

@@ -3,8 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using PortalAcademico.Data;
 using PortalAcademico.Models;
 
-namespace PortalAcademico.Controllers;
-
 public class CursosController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -14,40 +12,30 @@ public class CursosController : Controller
         _context = context;
     }
 
-    // GET: Cursos
     public async Task<IActionResult> Index(string nombre, int? creditosMin, int? creditosMax)
     {
-        var query = _context.Cursos.Where(c => c.Activo).AsQueryable();
+        var cursos = _context.Cursos.AsQueryable();
 
-        // Filtro por nombre
         if (!string.IsNullOrWhiteSpace(nombre))
-        {
-            query = query.Where(c => c.Nombre.Contains(nombre));
-        }
+            cursos = cursos.Where(c => c.Nombre.Contains(nombre));
 
-        // Filtro por créditos mínimo
-        if (creditosMin.HasValue && creditosMin > 0)
-        {
-            query = query.Where(c => c.Creditos >= creditosMin.Value);
-        }
+        if (creditosMin.HasValue)
+            cursos = cursos.Where(c => c.Creditos >= creditosMin.Value);
 
-        // Filtro por créditos máximo
-        if (creditosMax.HasValue && creditosMax > 0)
-        {
-            query = query.Where(c => c.Creditos <= creditosMax.Value);
-        }
+        if (creditosMax.HasValue)
+            cursos = cursos.Where(c => c.Creditos <= creditosMax.Value);
 
-        var cursos = await query.ToListAsync();
-        return View(cursos);
+        cursos = cursos.Where(c => c.Activo);
+
+        return View(await cursos.ToListAsync());
     }
 
-    // GET: Cursos/Detalle/5
-    public async Task<IActionResult> Detalle(int? id)
+    public async Task<IActionResult> Details(int? id)
     {
         if (id == null) return NotFound();
 
-        var curso = await _context.Cursos.FindAsync(id);
-        if (curso == null || !curso.Activo) return NotFound();
+        var curso = await _context.Cursos.FirstOrDefaultAsync(m => m.Id == id);
+        if (curso == null) return NotFound();
 
         return View(curso);
     }

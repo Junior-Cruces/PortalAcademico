@@ -26,11 +26,19 @@ Sistema de gestión de cursos y matrículas para una universidad, desarrollado e
 - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 - (Opcional) Redis local o cuenta en [Redis Labs](https://app.redislabs.com/)
 
-### Pasos
+### Pasos para ejecutar
 1. Clonar el repositorio:
    ```bash
    git clone https://github.com/Junior-Cruces/PortalAcademico.git
    cd PortalAcademico
+   2: restaurar
+   dotnet restore
+   3:aplicar migraciones 
+   dotnet ef database update
+   4: confirurar redits 
+   dotnet user-secrets set "Redis__ConnectionString" "tu-cadena-de-redis"
+   5: ejecutar 
+   dotnet run
 
 ### Credenciales de prueba
    

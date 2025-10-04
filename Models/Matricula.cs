@@ -1,26 +1,24 @@
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Identity; // ← Necesario para IdentityUser
 
-namespace PortalAcademico.Models;
-
-public class Matricula
+namespace PortalAcademico.Models
 {
-    public int Id { get; set; }
+    public class Matricula
+    {
+        public int Id { get; set; }
 
-    public int CursoId { get; set; }
-    public Curso? Curso { get; set; }
+        public int CursoId { get; set; }
+        [ForeignKey("CursoId")]
+        public Curso Curso { get; set; } = null!;
 
-    public string UsuarioId { get; set; } = string.Empty;
-    public IdentityUser? Usuario { get; set; }
+        public string UsuarioId { get; set; } = null!;
+        [ForeignKey("UsuarioId")]
+        public IdentityUser Usuario { get; set; } = null!;
 
-    public DateTime FechaRegistro { get; set; } = DateTime.UtcNow;
+        public DateTime FechaRegistro { get; set; } = DateTime.Now;
 
-    public EstadoMatricula Estado { get; set; }
-}
-
-public enum EstadoMatricula
-{
-    Pendiente,
-    Confirmada,
-    Cancelada
+        [Required]
+        public string Estado { get; set; } = "Pendiente"; // Pendiente, Confirmada, Cancelada
+    }
 }

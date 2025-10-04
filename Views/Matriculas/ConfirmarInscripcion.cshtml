@@ -1,0 +1,21 @@
+@model PortalAcademico.Models.Curso
+
+@{
+    ViewData["Title"] = "Confirmar Inscripción";
+}
+
+<h2>¿Confirmar inscripción en @Model.Nombre?</h2>
+<div class="card" style="max-width: 500px;">
+    <div class="card-body">
+        <p><strong>Código:</strong> @Model.Codigo</p>
+        <p><strong>Créditos:</strong> @Model.Creditos</p>
+        <p><strong>Horario:</strong> @Model.HorarioInicio - @Model.HorarioFin</p>
+        <p><strong>Cupo:</strong> @Model.CupoMaximo estudiantes</p>
+
+        <form asp-action="Inscribir" method="post">
+            <input type="hidden" name="cursoId" value="@Model.Id" />
+            <button type="submit" class="btn btn-success">✅ Confirmar inscripción</button>
+            <a href="@Url.Action("Index", "Cursos")" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>

@@ -1,58 +1,82 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Portal Académico - @ViewData["Title"]</title>
+    <title>@ViewData["Title"] - Portal Académico</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Portal Académico</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand text-white" asp-area="" asp-controller="Home" asp-action="Index">Portal Académico</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Hogar</a>
+                            <a class="nav-link text-white" asp-area="" asp-controller="Cursos" asp-action="Index">Catálogo</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacidad</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Cursos" asp-action="Index">Cursos</a>
-                        </li>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            if (User.IsInRole("Coordinador"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-white" asp-area="" asp-controller="Coordinador" asp-action="Index">Panel Coordinador</a>
+                                </li>
+                            }
+                        }
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>
             </div>
         </nav>
+
+        <!-- Mensajes de éxito/error -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
+                @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show m-3" role="alert">
+                @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <!-- Enlace de "Volver al curso" (Pregunta 4 - opcional por ahora) -->
+        @if (Context.Session.GetString("UltimoCursoNombre") != null)
+        {
+            <div class="bg-light text-center py-2">
+                <a class="text-primary" 
+                   asp-controller="Cursos" 
+                   asp-action="Details" 
+                   asp-route-id="@Context.Session.GetInt32("UltimoCursoId")">
+                    👈 Volver al curso @Context.Session.GetString("UltimoCursoNombre")
+                </a>
+            </div>
+        }
     </header>
 
     <div class="container">
         <main role="main" class="pb-3">
-            @if (Context.Session.GetInt32("UltimoCursoId") is int id)
-            {
-                var nombre = Context.Session.GetString("UltimoCursoNombre");
-                <div class="alert alert-info">
-                    <a asp-controller="Cursos" asp-action="Detalle" asp-route-id="@id" class="alert-link">
-                        Volver al curso @nombre
-                    </a>
-                </div>
-            }
-
             @RenderBody()
         </main>
     </div>
 
     <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - Portal Académico - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacidad</a>
+        <div class="container text-center">
+            &copy; 2025 - Portal Académico
         </div>
     </footer>
 

@@ -1,0 +1,62 @@
+@model List<PortalAcademico.Models.Matricula>
+@{ 
+    ViewData["Title"] = "Matrículas";
+    var curso = ViewBag.Curso as PortalAcademico.Models.Curso;
+}
+
+<h2>Matrículas en @curso.Nombre</h2>
+<a asp-action="Index" class="btn btn-secondary mb-3">Volver al panel</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Estudiante</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Any())
+        {
+            foreach (var m in Model)
+            {
+                <tr>
+                    <td>@m.Usuario.Email</td>
+                    <td>@m.FechaRegistro.ToString("g")</td>
+                    <td>
+                        @if (m.Estado == "Pendiente")
+                        {
+                            <span class="badge bg-warning text-dark">@m.Estado</span>
+                        }
+                        else if (m.Estado == "Confirmada")
+                        {
+                            <span class="badge bg-success">@m.Estado</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">@m.Estado</span>
+                        }
+                    </td>
+                    <td>
+                        @if (m.Estado == "Pendiente")
+                        {
+                            <form asp-action="Confirmar" method="post" style="display:inline;">
+                                <input type="hidden" name="matriculaId" value="@m.Id" />
+                                <button type="submit" class="btn btn-sm btn-success">Confirmar</button>
+                            </form>
+                            <form asp-action="Cancelar" method="post" style="display:inline;">
+                                <input type="hidden" name="matriculaId" value="@m.Id" />
+                                <button type="submit" class="btn btn-sm btn-danger">Cancelar</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr><td colspan="4" class="text-center">No hay matrículas.</td></tr>
+        }
+    </tbody>
+</table>
